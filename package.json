@@ -1,7 +1,7 @@
 {
   "name": "slot-calendar",
   "version": "1.0.0",
-  "description": "A simple table-based slot calendar component for React, compatible with YoyakuDX",
+  "description": "A modern and flexible time slot calendar component for React with table-based weekly view",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -43,19 +43,18 @@
     "appointment",
     "schedule",
     "table",
-    "yoyakudx",
     "typescript"
   ],
-  "author": "YoyakuDX <support@yoyakudx.com>",
+  "author": "Tomonari Ikeda <tomonari.ikeda@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yoyakudx/slot-calendar.git"
+    "url": "https://github.com/TomonariIkeda/slot-calendar.git"
   },
   "bugs": {
-    "url": "https://github.com/yoyakudx/slot-calendar/issues"
+    "url": "https://github.com/TomonariIkeda/slot-calendar/issues"
   },
-  "homepage": "https://github.com/yoyakudx/slot-calendar#readme",
+  "homepage": "https://github.com/TomonariIkeda/slot-calendar#readme",
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"

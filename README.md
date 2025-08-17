@@ -1,17 +1,18 @@
 # Slot Calendar
 
-A simple table-based slot calendar component for React applications, compatible with YoyakuDX reservation system. Features a traditional weekly calendar layout with time slots displayed in a table format.
+A modern and flexible time slot calendar component for React applications. Features a clean table-based weekly view with customizable time slots for appointment booking, scheduling, and reservation systems.
 
 ## Features
 
-- 📅 **Weekly Table Layout**: Traditional table-based calendar display
-- 🎯 **Slot Status Display**: Visual indicators for available (◎), reserved (×), and unavailable (-) slots
-- 📱 **Responsive Design**: Works on desktop and mobile devices
-- 🔄 **Week Navigation**: Navigate between weeks with prev/next buttons
-- 🎨 **YoyakuDX Compatible**: Matches the original YoyakuDX calendar styling
-- 🔧 **TypeScript Support**: Full TypeScript support with comprehensive types
-- ⚡ **Performance Optimized**: Efficient table rendering and event handling
-- ♿ **Accessible**: Built with accessibility in mind
+- 📅 **Weekly Table Layout**: Clean table-based calendar display with week view
+- 🎯 **Slot Status Display**: Clear visual indicators for available (◎), reserved (×), and unavailable (-) slots
+- 📱 **Responsive Design**: Fully responsive design that works seamlessly on desktop, tablet, and mobile devices
+- 🔄 **Week Navigation**: Smooth navigation between weeks with previous/next buttons
+- 🎨 **Customizable Styling**: Easy to customize with CSS variables and class names
+- 🔧 **TypeScript Support**: Full TypeScript support with comprehensive type definitions
+- ⚡ **Performance Optimized**: Efficient rendering with skeleton loading and smooth transitions
+- ♿ **Accessible**: Built with accessibility best practices including ARIA labels and keyboard navigation
+- 🌐 **Internationalization Ready**: Support for multiple locales and date formats
 
 ## Installation
 
@@ -81,13 +82,15 @@ interface SlotData {
 
 ## API Integration
 
-The calendar expects your API to respond to `GET /api/slots` with the following parameters:
+The calendar component is designed to work with your backend API. It expects a `GET /api/slots` endpoint that returns calendar data.
 
-- `shopId`: Shop identifier
-- `staffId`: Staff ID (optional)
-- `year`, `month`, `day`: Calendar date
-- `menuItemIds`: JSON encoded array of menu item IDs
-- `reservationId`: Reservation ID (optional)
+### Request Parameters
+
+- `shopId`: Unique identifier for the location/shop
+- `staffId`: Staff member ID (optional)
+- `year`, `month`, `day`: Calendar date for the week
+- `menuItemIds`: JSON encoded array of service/menu item IDs
+- `reservationId`: Existing reservation ID for editing (optional)
 
 ### API Response Format
 
@@ -193,22 +196,27 @@ function LoadingAwareCalendar() {
 
 ## Styling
 
-The component comes with default styling that matches YoyakuDX:
+The component comes with clean, modern default styling that can be easily customized:
 
 ```css
 /* Override default styles */
 .slot-calendar {
-  --primary-color: #your-color;
-  --border-color: #your-border;
+  --primary-color: #1976d2;
+  --border-color: #e0e0e0;
+  --background-color: #ffffff;
 }
 
-/* Customize slot symbols */
+/* Customize slot status colors */
 .cal-time-slot td.available {
-  color: #your-available-color;
+  color: #d32f2f; /* Red for available */
 }
 
 .cal-time-slot td.reserved {
-  color: #your-reserved-color;
+  color: #757575; /* Gray for reserved */
+}
+
+.cal-time-slot td.off {
+  color: #bdbdbd; /* Light gray for unavailable */
 }
 ```
 
@@ -220,19 +228,14 @@ The component comes with default styling that matches YoyakuDX:
 
 ## Accessibility
 
-- Keyboard navigation support
-- ARIA labels for screen readers
-- Focus management
-- High contrast support
+The component is built with accessibility as a priority:
 
-## YoyakuDX Compatibility
-
-This component is designed to be a drop-in replacement for YoyakuDX's original calendar implementation:
-
-- Same API endpoints and data formats
-- Compatible styling and layout
-- Identical user interaction patterns
-- Supports all YoyakuDX calendar features
+- ✅ Full keyboard navigation support
+- ✅ Comprehensive ARIA labels for screen readers
+- ✅ Focus management and visual indicators
+- ✅ High contrast mode support
+- ✅ Semantic HTML structure
+- ✅ Responsive text sizing
 
 ## Development
 
@@ -246,12 +249,33 @@ npm run dev
 # Run tests
 npm test
 
+# Run tests with coverage
+npm run test:coverage
+
 # Build for production
 npm run build
 
-# Run Storybook
+# Run Storybook for component development
 npm run storybook
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
+
+# Format code
+npm run format
 ```
+
+## Testing
+
+The project includes comprehensive test coverage:
+
+- Unit tests for all components and hooks
+- Integration tests for user interactions
+- Accessibility testing
+- Visual regression testing with Storybook
 
 ## Browser Support
 
@@ -259,13 +283,31 @@ npm run storybook
 - ✅ Firefox (latest)
 - ✅ Safari (latest)
 - ✅ Edge (latest)
-- ✅ Mobile browsers
+- ✅ iOS Safari
+- ✅ Android Chrome
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-MIT © [YoyakuDX](https://github.com/yoyakudx)
+MIT © [Tomonari Ikeda](https://github.com/TomonariIkeda)
 
-## Related Packages
+## Author
 
-- [`simple-slots`](https://github.com/yoyakudx/simple-slots) - Core slot calculation library
-- [`simple-slots-multi`](https://github.com/yoyakudx/simple-slots-multi) - Multi-resource slot management
+**Tomonari Ikeda**
+- GitHub: [@TomonariIkeda](https://github.com/TomonariIkeda)
+
+## Acknowledgments
+
+- Built with React and TypeScript
+- Styled with modern CSS
+- Tested with Jest and React Testing Library
+- Documented with Storybook
