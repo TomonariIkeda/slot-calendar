@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { CalendarData, SlotCalendarState } from '../types';
 import { addDays } from '../utils/dateUtils';
+import { DataProvider, ApiDataProvider } from '../providers';
 
 export const useSlotCalendar = (
   initialDate: Date = new Date(),
-  onLoadingChange?: (isLoading: boolean) => void
+  onLoadingChange?: (isLoading: boolean) => void,
+  dataProvider?: DataProvider
 ) => {
   const [state, setState] = useState<SlotCalendarState>({
     currentDate: initialDate,
@@ -32,6 +34,9 @@ export const useSlotCalendar = (
     setState(prev => ({ ...prev, currentDate: newDate }));
   }, [state.currentDate]);
 
+  // Use provided data provider or default to API provider
+  const provider = dataProvider || new ApiDataProvider();
+
   const loadSlots = useCallback(async (
     menuItemIds: number[],
     staffId: number | undefined,
@@ -43,37 +48,23 @@ export const useSlotCalendar = (
     setError(null);
 
     try {
-      // This would be replaced with actual API call
-      const params = new URLSearchParams({
-        shopId: shopId.toString(),
-        year: state.currentDate.getFullYear().toString(),
-        month: (state.currentDate.getMonth() + 1).toString(),
-        day: state.currentDate.getDate().toString(),
-        menuItemIds: encodeURIComponent(JSON.stringify(menuItemIds))
+      const calendarData = await provider.fetchSlots({
+        shopId,
+        year: state.currentDate.getFullYear(),
+        month: state.currentDate.getMonth() + 1,
+        day: state.currentDate.getDate(),
+        menuItemIds,
+        staffId,
+        reservationId
       });
-
-      if (staffId) {
-        params.append('staffId', staffId.toString());
-      }
-      if (reservationId) {
-        params.append('reservationId', reservationId.toString());
-      }
-
-      // Mock API call - replace with actual fetch
-      const response = await fetch(`/api/slots?${params}`);
       
-      if (!response.ok) {
-        throw new Error('Failed to load slots');
-      }
-
-      const calendarData: CalendarData = await response.json();
       setCalendarData(calendarData);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setLoading(false);
     }
-  }, [state.currentDate, setLoading, setError, setCalendarData]);
+  }, [state.currentDate, provider, setLoading, setError, setCalendarData]);
 
   const navigateToPrevWeek = useCallback(() => {
     navigateWeek('prev');

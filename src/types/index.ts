@@ -32,6 +32,8 @@ export interface CalendarData {
   syncToken?: string;
 }
 
+import { DataProvider } from '../providers/DataProvider';
+
 export interface SlotCalendarProps {
   menuItemIds?: number[];
   staffId?: number;
@@ -47,6 +49,7 @@ export interface SlotCalendarProps {
   onLoadingChange?: (isLoading: boolean) => void;
   className?: string;
   disabled?: boolean;
+  dataProvider?: DataProvider;
 }
 
 export interface BusinessHours {

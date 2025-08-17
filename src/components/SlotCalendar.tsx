@@ -14,7 +14,8 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
   onSlotSelect,
   onLoadingChange,
   className = '',
-  disabled = false
+  disabled = false,
+  dataProvider
 }) => {
   const {
     currentDate,
@@ -24,7 +25,7 @@ export const SlotCalendar: React.FC<SlotCalendarProps> = ({
     loadSlots,
     navigateToPrevWeek,
     navigateToNextWeek
-  } = useSlotCalendar(initialDate, onLoadingChange);
+  } = useSlotCalendar(initialDate, onLoadingChange, dataProvider);
 
   const tableRef = useRef<HTMLTableElement>(null);
 

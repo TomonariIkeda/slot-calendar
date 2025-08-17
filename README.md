@@ -8,11 +8,13 @@ A modern and flexible time slot calendar component for React applications. Featu
 - 🎯 **Slot Status Display**: Clear visual indicators for available (◎), reserved (×), and unavailable (-) slots
 - 📱 **Responsive Design**: Fully responsive design that works seamlessly on desktop, tablet, and mobile devices
 - 🔄 **Week Navigation**: Smooth navigation between weeks with previous/next buttons
+- 🔌 **Flexible Data Sources**: Works with or without backend API through data providers
 - 🎨 **Customizable Styling**: Easy to customize with CSS variables and class names
 - 🔧 **TypeScript Support**: Full TypeScript support with comprehensive type definitions
 - ⚡ **Performance Optimized**: Efficient rendering with skeleton loading and smooth transitions
 - ♿ **Accessible**: Built with accessibility best practices including ARIA labels and keyboard navigation
 - 🌐 **Internationalization Ready**: Support for multiple locales and date formats
+- 🧪 **Development Friendly**: Built-in mock data provider for easy development and testing
 
 ## Installation
 
@@ -25,6 +27,8 @@ pnpm add slot-calendar
 ```
 
 ## Quick Start
+
+### With Backend API (Default)
 
 ```tsx
 import React from 'react';
@@ -48,22 +52,48 @@ function App() {
 }
 ```
 
+### Without Backend (Static Data)
+
+```tsx
+import React from 'react';
+import { SlotCalendar, StaticDataProvider } from 'slot-calendar';
+
+function App() {
+  // Create a data provider that generates mock data
+  const dataProvider = new StaticDataProvider();
+
+  const handleSlotSelect = (slotData) => {
+    console.log('Selected slot:', slotData);
+  };
+
+  return (
+    <SlotCalendar
+      shopId={123}
+      menuItemIds={[1, 2]}
+      dataProvider={dataProvider}
+      onSlotSelect={handleSlotSelect}
+    />
+  );
+}
+```
+
 ## Props
 
 ### SlotCalendarProps
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `shopId` | `number` | **required** | Shop identifier |
-| `menuItemIds` | `number[]` | `[]` | Array of menu item IDs |
+| `shopId` | `number` | **required** | Shop/location identifier |
+| `menuItemIds` | `number[]` | `[]` | Array of menu/service item IDs |
 | `staffId` | `number` | `undefined` | Staff ID (for staff-specific slots) |
 | `isStaffSelected` | `boolean` | `false` | Whether staff is specifically selected |
-| `reservationId` | `number` | `undefined` | Reservation ID (for editing) |
+| `reservationId` | `number` | `undefined` | Reservation ID (for editing existing booking) |
 | `initialDate` | `Date` | `new Date()` | Initial calendar date |
 | `onSlotSelect` | `function` | `undefined` | Callback when slot is selected |
 | `onLoadingChange` | `function` | `undefined` | Callback when loading state changes |
 | `className` | `string` | `''` | Additional CSS class |
 | `disabled` | `boolean` | `false` | Disable the calendar |
+| `dataProvider` | `DataProvider` | `ApiDataProvider` | Data source for calendar slots |
 
 ### Slot Selection Callback
 
@@ -80,9 +110,61 @@ interface SlotData {
 }
 ```
 
+## Data Providers
+
+The calendar supports multiple data sources through the DataProvider interface:
+
+### Built-in Providers
+
+#### 1. ApiDataProvider (Default)
+Fetches data from your backend API.
+
+```typescript
+import { ApiDataProvider } from 'slot-calendar';
+
+const provider = new ApiDataProvider({
+  apiEndpoint: '/api/slots',
+  headers: {
+    'Authorization': 'Bearer token'
+  }
+});
+```
+
+#### 2. StaticDataProvider
+Generates mock data locally - perfect for development and testing.
+
+```typescript
+import { StaticDataProvider } from 'slot-calendar';
+
+// Generate random data
+const provider = new StaticDataProvider();
+
+// With custom delay (simulates loading)
+const providerWithDelay = new StaticDataProvider(500);
+
+// With custom predefined data
+const customData = { /* CalendarData structure */ };
+const providerWithCustomData = new StaticDataProvider(0, customData);
+```
+
+### Custom Data Provider
+
+Create your own data provider by implementing the DataProvider interface:
+
+```typescript
+import { DataProvider, FetchSlotsParams, CalendarData } from 'slot-calendar';
+
+class MyCustomProvider implements DataProvider {
+  async fetchSlots(params: FetchSlotsParams): Promise<CalendarData> {
+    // Your custom logic here
+    return customCalendarData;
+  }
+}
+```
+
 ## API Integration
 
-The calendar component is designed to work with your backend API. It expects a `GET /api/slots` endpoint that returns calendar data.
+When using the default `ApiDataProvider`, the component expects a `GET /api/slots` endpoint that returns calendar data.
 
 ### Request Parameters
 
@@ -128,28 +210,47 @@ interface TimeSlot {
 
 ## Usage Examples
 
-### Basic Reservation Calendar
+### Development/Testing without Backend
 
 ```tsx
-import { SlotCalendar } from 'slot-calendar';
+import { SlotCalendar, StaticDataProvider } from 'slot-calendar';
 
-function ReservationPage() {
-  const [selectedSlot, setSelectedSlot] = useState(null);
+function DevelopmentCalendar() {
+  // Use static data provider for development
+  const dataProvider = new StaticDataProvider(300); // 300ms mock delay
 
   return (
-    <div>
-      <SlotCalendar
-        shopId={123}
-        menuItemIds={[1]}
-        onSlotSelect={setSelectedSlot}
-      />
-      
-      {selectedSlot && (
-        <div>
-          Selected: {new Date(selectedSlot.startAt).toLocaleString()}
-        </div>
-      )}
-    </div>
+    <SlotCalendar
+      shopId={1}
+      menuItemIds={[1, 2]}
+      dataProvider={dataProvider}
+      onSlotSelect={(slot) => console.log('Selected:', slot)}
+    />
+  );
+}
+```
+
+### Production with API
+
+```tsx
+import { SlotCalendar, ApiDataProvider } from 'slot-calendar';
+
+function ProductionCalendar() {
+  // Configure API provider with authentication
+  const dataProvider = new ApiDataProvider({
+    apiEndpoint: 'https://api.example.com/slots',
+    headers: {
+      'Authorization': `Bearer ${authToken}`
+    }
+  });
+
+  return (
+    <SlotCalendar
+      shopId={123}
+      menuItemIds={[1]}
+      dataProvider={dataProvider}
+      onSlotSelect={handleBooking}
+    />
   );
 }
 ```
@@ -174,22 +275,35 @@ function StaffCalendar({ staffId, staffName }) {
 }
 ```
 
-### With Loading State
+### With Custom Data
 
 ```tsx
-function LoadingAwareCalendar() {
-  const [isLoading, setIsLoading] = useState(false);
+import { SlotCalendar, StaticDataProvider } from 'slot-calendar';
+
+function CustomDataCalendar() {
+  const customCalendarData = {
+    year: 2024,
+    month: 8,
+    day: 19,
+    firstSlotStartAt: '10:00',
+    availabilityIncrements: 60,
+    hasPrev: false,
+    hasNext: true,
+    days: [
+      // Your custom day/slot structure
+    ],
+    syncToken: 'custom-token'
+  };
+
+  const dataProvider = new StaticDataProvider(0, customCalendarData);
 
   return (
-    <div>
-      {isLoading && <div>Loading slots...</div>}
-      
-      <SlotCalendar
-        shopId={123}
-        menuItemIds={[1]}
-        onLoadingChange={setIsLoading}
-      />
-    </div>
+    <SlotCalendar
+      shopId={1}
+      menuItemIds={[1]}
+      dataProvider={dataProvider}
+      onSlotSelect={handleSlotSelect}
+    />
   );
 }
 ```

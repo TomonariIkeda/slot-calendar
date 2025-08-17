@@ -308,6 +308,17 @@ export const OnlyPrevDisabled: Story = {
   ],
 };
 
+export const WithStaticData: Story = {
+  args: {
+    shopId: 123,
+    menuItemIds: [1],
+    dataProvider: new (require('../src/providers').StaticDataProvider)(500),
+    onSlotSelect: (slotData) => {
+      console.log('Selected slot (static):', slotData);
+    },
+  },
+};
+
 export const OnlyNextDisabled: Story = {
   args: {
     shopId: 123,
