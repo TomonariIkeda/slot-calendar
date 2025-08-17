@@ -1,17 +1,17 @@
 # Slot Calendar
 
-A simple and lightweight slot calendar component for React applications. Perfect for booking systems, appointment scheduling, and time slot management.
+A simple table-based slot calendar component for React applications, compatible with YoyakuDX reservation system. Features a traditional weekly calendar layout with time slots displayed in a table format.
 
 ## Features
 
-- 📅 **Week View**: Clean week-based calendar layout
-- 🎯 **Time Slot Management**: Display available, unavailable, and reserved time slots
-- 📱 **Responsive Design**: Works seamlessly on desktop and mobile devices
-- 🎨 **Customizable Styling**: Easy to theme and customize
-- ♿ **Accessibility**: Built with ARIA labels and keyboard navigation
-- 🔧 **TypeScript Support**: Full TypeScript support with comprehensive type definitions
-- 🪶 **Lightweight**: Minimal dependencies and optimized bundle size
-- 🧪 **Well Tested**: Comprehensive test coverage
+- 📅 **Weekly Table Layout**: Traditional table-based calendar display
+- 🎯 **Slot Status Display**: Visual indicators for available (◎), reserved (×), and unavailable (-) slots
+- 📱 **Responsive Design**: Works on desktop and mobile devices
+- 🔄 **Week Navigation**: Navigate between weeks with prev/next buttons
+- 🎨 **YoyakuDX Compatible**: Matches the original YoyakuDX calendar styling
+- 🔧 **TypeScript Support**: Full TypeScript support with comprehensive types
+- ⚡ **Performance Optimized**: Efficient table rendering and event handling
+- ♿ **Accessible**: Built with accessibility in mind
 
 ## Installation
 
@@ -27,32 +27,20 @@ pnpm add slot-calendar
 
 ```tsx
 import React from 'react';
-import { SlotCalendar, TimeSlot } from 'slot-calendar';
-
-const availableSlots: TimeSlot[] = [
-  {
-    id: '1',
-    startTime: new Date('2024-01-15T09:00:00'),
-    endTime: new Date('2024-01-15T09:30:00'),
-    available: true,
-  },
-  {
-    id: '2',
-    startTime: new Date('2024-01-15T10:00:00'),
-    endTime: new Date('2024-01-15T10:30:00'),
-    available: true,
-  },
-  // ... more slots
-];
+import { SlotCalendar } from 'slot-calendar';
 
 function App() {
-  const handleSlotSelect = (slot: TimeSlot) => {
-    console.log('Selected slot:', slot);
+  const handleSlotSelect = (slotData) => {
+    console.log('Selected slot:', slotData);
+    // slotData contains: { startAt, staff, syncToken }
   };
 
   return (
     <SlotCalendar
-      availableSlots={availableSlots}
+      shopId={123}
+      menuItemIds={[1, 2]}
+      staffId={456}
+      isStaffSelected={true}
       onSlotSelect={handleSlotSelect}
     />
   );
@@ -65,185 +53,186 @@ function App() {
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `startDate` | `Date` | `new Date()` | Starting date for the calendar |
-| `endDate` | `Date` | `undefined` | Ending date for the calendar |
-| `businessHours` | `BusinessHours[]` | `[]` | Business hours configuration |
-| `slotDuration` | `number` | `30` | Duration of each slot in minutes |
-| `availableSlots` | `TimeSlot[]` | `[]` | Array of available time slots |
-| `selectedSlots` | `string[]` | `[]` | Array of selected slot IDs |
-| `onSlotSelect` | `(slot: TimeSlot) => void` | `undefined` | Callback when a slot is selected |
-| `onSlotDeselect` | `(slot: TimeSlot) => void` | `undefined` | Callback when a slot is deselected |
-| `onDateChange` | `(date: Date) => void` | `undefined` | Callback when date changes |
-| `disabled` | `boolean` | `false` | Disable the entire calendar |
-| `minSelectableDate` | `Date` | `undefined` | Minimum selectable date |
-| `maxSelectableDate` | `Date` | `undefined` | Maximum selectable date |
-| `className` | `string` | `''` | Additional CSS class name |
-| `showWeekView` | `boolean` | `true` | Enable week view toggle |
-| `locale` | `string` | `'en-US'` | Locale for date formatting |
+| `shopId` | `number` | **required** | Shop identifier |
+| `menuItemIds` | `number[]` | `[]` | Array of menu item IDs |
+| `staffId` | `number` | `undefined` | Staff ID (for staff-specific slots) |
+| `isStaffSelected` | `boolean` | `false` | Whether staff is specifically selected |
+| `reservationId` | `number` | `undefined` | Reservation ID (for editing) |
+| `initialDate` | `Date` | `new Date()` | Initial calendar date |
+| `onSlotSelect` | `function` | `undefined` | Callback when slot is selected |
+| `onLoadingChange` | `function` | `undefined` | Callback when loading state changes |
+| `className` | `string` | `''` | Additional CSS class |
+| `disabled` | `boolean` | `false` | Disable the calendar |
 
-### TimeSlot Interface
+### Slot Selection Callback
+
+The `onSlotSelect` callback receives a slot data object:
 
 ```tsx
-interface TimeSlot {
-  id: string;
-  startTime: Date;
-  endTime: Date;
-  available: boolean;
-  reserved?: boolean;
-  metadata?: Record<string, any>;
+interface SlotData {
+  startAt: string;        // ISO string of slot start time
+  staff: {
+    id: number;           // Staff ID
+    nameDisplay: string;  // Display name
+  };
+  syncToken: string;      // Calendar sync token
 }
 ```
 
-### BusinessHours Interface
+## API Integration
 
-```tsx
-interface BusinessHours {
-  dayOfWeek: number; // 0 = Sunday, 1 = Monday, etc.
-  startTime: string; // HH:mm format
-  endTime: string; // HH:mm format
+The calendar expects your API to respond to `GET /api/slots` with the following parameters:
+
+- `shopId`: Shop identifier
+- `staffId`: Staff ID (optional)
+- `year`, `month`, `day`: Calendar date
+- `menuItemIds`: JSON encoded array of menu item IDs
+- `reservationId`: Reservation ID (optional)
+
+### API Response Format
+
+```typescript
+interface CalendarData {
+  year: number;
+  month: number;
+  day: number;
+  firstSlotStartAt: string;     // "09:00" format
+  availabilityIncrements: number; // minutes between slots
+  hasPrev: boolean;
+  hasNext: boolean;
+  days: CalendarDay[];
+  syncTokens?: Array<{
+    staffId: number;
+    syncToken: string;
+  }>;
+}
+
+interface CalendarDay {
+  year: number;
+  month: number;
+  day: number;
+  weekday: string;              // "月", "火", etc.
+  slots: TimeSlot[];
+}
+
+interface TimeSlot {
+  staffId?: number;
+  status: 'available' | 'reserved' | 'unavailable';
+  startTime: Date;
+  endTime: Date;
 }
 ```
 
 ## Usage Examples
 
-### Healthcare Appointment Booking
+### Basic Reservation Calendar
 
 ```tsx
-import { SlotCalendar, TimeSlot, BusinessHours } from 'slot-calendar';
+import { SlotCalendar } from 'slot-calendar';
 
-const businessHours: BusinessHours[] = [
-  { dayOfWeek: 1, startTime: '09:00', endTime: '17:00' }, // Monday
-  { dayOfWeek: 2, startTime: '09:00', endTime: '17:00' }, // Tuesday
-  { dayOfWeek: 3, startTime: '09:00', endTime: '17:00' }, // Wednesday
-  { dayOfWeek: 4, startTime: '09:00', endTime: '17:00' }, // Thursday
-  { dayOfWeek: 5, startTime: '09:00', endTime: '12:00' }, // Friday (half day)
-];
+function ReservationPage() {
+  const [selectedSlot, setSelectedSlot] = useState(null);
 
-const doctorSlots: TimeSlot[] = [
-  {
-    id: 'appointment-1',
-    startTime: new Date('2024-01-15T09:00:00'),
-    endTime: new Date('2024-01-15T09:30:00'),
-    available: true,
-    metadata: { doctor: 'Dr. Smith', type: 'consultation' }
-  },
-  // ... more appointments
-];
+  return (
+    <div>
+      <SlotCalendar
+        shopId={123}
+        menuItemIds={[1]}
+        onSlotSelect={setSelectedSlot}
+      />
+      
+      {selectedSlot && (
+        <div>
+          Selected: {new Date(selectedSlot.startAt).toLocaleString()}
+        </div>
+      )}
+    </div>
+  );
+}
+```
 
-function DoctorBooking() {
+### Staff-Specific Calendar
+
+```tsx
+function StaffCalendar({ staffId, staffName }) {
+  const handleSlotSelect = (slotData) => {
+    console.log(`Booking with ${staffName}:`, slotData);
+  };
+
   return (
     <SlotCalendar
-      availableSlots={doctorSlots}
-      businessHours={businessHours}
-      slotDuration={30}
-      onSlotSelect={(slot) => {
-        console.log('Booking appointment with', slot.metadata?.doctor);
-      }}
+      shopId={123}
+      menuItemIds={[1, 2]}
+      staffId={staffId}
+      isStaffSelected={true}
+      onSlotSelect={handleSlotSelect}
     />
   );
 }
 ```
 
-### Beauty Salon Booking
+### With Loading State
 
 ```tsx
-const salonSlots: TimeSlot[] = [
-  {
-    id: 'haircut-1',
-    startTime: new Date('2024-01-15T10:00:00'),
-    endTime: new Date('2024-01-15T11:00:00'),
-    available: true,
-    metadata: { service: 'Haircut', stylist: 'Alice', price: 50 }
-  },
-  {
-    id: 'manicure-1',
-    startTime: new Date('2024-01-15T11:00:00'),
-    endTime: new Date('2024-01-15T11:30:00'),
-    available: true,
-    metadata: { service: 'Manicure', stylist: 'Bob', price: 35 }
-  },
-];
-
-function SalonBooking() {
-  return (
-    <SlotCalendar
-      availableSlots={salonSlots}
-      slotDuration={60}
-      onSlotSelect={(slot) => {
-        const { service, stylist, price } = slot.metadata || {};
-        console.log(`Booking ${service} with ${stylist} - $${price}`);
-      }}
-    />
-  );
-}
-```
-
-### Meeting Room Reservation
-
-```tsx
-const meetingRoomSlots: TimeSlot[] = [
-  {
-    id: 'room-a-1',
-    startTime: new Date('2024-01-15T09:00:00'),
-    endTime: new Date('2024-01-15T10:00:00'),
-    available: true,
-    metadata: { room: 'Conference Room A', capacity: 10 }
-  },
-  {
-    id: 'room-a-2',
-    startTime: new Date('2024-01-15T10:00:00'),
-    endTime: new Date('2024-01-15T11:00:00'),
-    available: false,
-    reserved: true,
-    metadata: { room: 'Conference Room A', bookedBy: 'Marketing Team' }
-  },
-];
-
-function MeetingRoomBooking() {
-  const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
+function LoadingAwareCalendar() {
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <SlotCalendar
-      availableSlots={meetingRoomSlots}
-      selectedSlots={selectedSlots}
-      onSlotSelect={(slot) => {
-        setSelectedSlots(prev => [...prev, slot.id]);
-      }}
-      onSlotDeselect={(slot) => {
-        setSelectedSlots(prev => prev.filter(id => id !== slot.id));
-      }}
-    />
+    <div>
+      {isLoading && <div>Loading slots...</div>}
+      
+      <SlotCalendar
+        shopId={123}
+        menuItemIds={[1]}
+        onLoadingChange={setIsLoading}
+      />
+    </div>
   );
 }
 ```
 
 ## Styling
 
-The component comes with default styling that can be customized:
+The component comes with default styling that matches YoyakuDX:
 
 ```css
 /* Override default styles */
 .slot-calendar {
-  --primary-color: #your-brand-color;
-  --border-color: #your-border-color;
-  --background-color: #your-background-color;
+  --primary-color: #your-color;
+  --border-color: #your-border;
 }
 
-/* Custom slot styling */
-.slot-calendar__time-slot--selected {
-  background: #your-selected-color;
+/* Customize slot symbols */
+.cal-time-slot td.available {
+  color: #your-available-color;
+}
+
+.cal-time-slot td.reserved {
+  color: #your-reserved-color;
 }
 ```
 
+## Slot Status Display
+
+- **◎** (Available): User can click to book this slot
+- **×** (Reserved): Slot is already booked
+- **-** (Unavailable): Slot is not available (outside business hours, etc.)
+
 ## Accessibility
 
-The component is built with accessibility in mind:
+- Keyboard navigation support
+- ARIA labels for screen readers
+- Focus management
+- High contrast support
 
-- ✅ ARIA labels for screen readers
-- ✅ Keyboard navigation support
-- ✅ Focus management
-- ✅ High contrast support
-- ✅ Semantic HTML structure
+## YoyakuDX Compatibility
+
+This component is designed to be a drop-in replacement for YoyakuDX's original calendar implementation:
+
+- Same API endpoints and data formats
+- Compatible styling and layout
+- Identical user interaction patterns
+- Supports all YoyakuDX calendar features
 
 ## Development
 
@@ -251,29 +240,17 @@ The component is built with accessibility in mind:
 # Install dependencies
 npm install
 
+# Run in development mode
+npm run dev
+
 # Run tests
 npm test
 
+# Build for production
+npm run build
+
 # Run Storybook
 npm run storybook
-
-# Build the package
-npm run build
-```
-
-## Testing
-
-The package includes comprehensive tests:
-
-```bash
-# Run all tests
-npm test
-
-# Run tests with coverage
-npm run test:coverage
-
-# Run tests in watch mode
-npm run test:watch
 ```
 
 ## Browser Support
@@ -284,15 +261,11 @@ npm run test:watch
 - ✅ Edge (latest)
 - ✅ Mobile browsers
 
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
 ## License
 
 MIT © [YoyakuDX](https://github.com/yoyakudx)
 
 ## Related Packages
 
-- [`simple-slots`](https://github.com/yoyakudx/simple-slots) - Time slot calculation library
+- [`simple-slots`](https://github.com/yoyakudx/simple-slots) - Core slot calculation library
 - [`simple-slots-multi`](https://github.com/yoyakudx/simple-slots-multi) - Multi-resource slot management

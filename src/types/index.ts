@@ -1,50 +1,63 @@
+export enum SlotStatus {
+  UNAVAILABLE = 'unavailable',
+  AVAILABLE = 'available', 
+  RESERVED = 'reserved'
+}
+
 export interface TimeSlot {
-  id: string;
+  staffId?: number;
+  status: SlotStatus;
   startTime: Date;
   endTime: Date;
-  available: boolean;
-  reserved?: boolean;
-  metadata?: Record<string, any>;
 }
 
 export interface CalendarDay {
-  date: Date;
+  year: number;
+  month: number;
+  day: number;
+  weekday: string;
   slots: TimeSlot[];
-  isToday: boolean;
-  isSelected: boolean;
-  isDisabled: boolean;
+}
+
+export interface CalendarData {
+  year: number;
+  month: number;
+  day: number;
+  firstSlotStartAt: string; // HH:mm format
+  availabilityIncrements: number; // minutes
+  hasPrev: boolean;
+  hasNext: boolean;
+  days: CalendarDay[];
+  syncTokens?: Array<{ staffId: number; syncToken: string }>;
+  syncToken?: string;
+}
+
+export interface SlotCalendarProps {
+  menuItemIds?: number[];
+  staffId?: number;
+  isStaffSelected?: boolean;
+  shopId: number;
+  reservationId?: number;
+  initialDate?: Date;
+  onSlotSelect?: (slotData: {
+    startAt: string;
+    staff: { id: number; nameDisplay: string };
+    syncToken: string;
+  }) => void;
+  onLoadingChange?: (isLoading: boolean) => void;
+  className?: string;
+  disabled?: boolean;
 }
 
 export interface BusinessHours {
-  dayOfWeek: number; // 0 = Sunday, 1 = Monday, etc.
-  startTime: string; // HH:mm format
-  endTime: string; // HH:mm format
+  openTime: string; // HH:mm
+  closeTime: string; // HH:mm
+  availabilityIncrements: number; // minutes
 }
 
-export interface ReservationCalendarProps {
-  startDate?: Date;
-  endDate?: Date;
-  businessHours?: BusinessHours[];
-  slotDuration?: number; // in minutes
-  availableSlots?: TimeSlot[];
-  selectedSlots?: string[];
-  onSlotSelect?: (slot: TimeSlot) => void;
-  onSlotDeselect?: (slot: TimeSlot) => void;
-  onDateChange?: (date: Date) => void;
-  disabled?: boolean;
-  minSelectableDate?: Date;
-  maxSelectableDate?: Date;
-  className?: string;
-  locale?: string;
-}
-
-export interface CalendarState {
+export interface SlotCalendarState {
   currentDate: Date;
-  selectedDate: Date;
-  selectedSlots: Set<string>;
-}
-
-export interface CalendarAction {
-  type: 'SET_CURRENT_DATE' | 'SET_SELECTED_DATE' | 'TOGGLE_SLOT' | 'CLEAR_SELECTION';
-  payload?: any;
+  calendarData: CalendarData | null;
+  isLoading: boolean;
+  error: string | null;
 }

@@ -1,8 +1,7 @@
-export { ReservationCalendar } from './components/ReservationCalendar';
-export { TimeSlot } from './components/TimeSlot';
-export { CalendarDay } from './components/CalendarDay';
-export { useCalendarState } from './hooks/useCalendarState';
+export { SlotCalendar } from './components/SlotCalendar';
+export { useSlotCalendar } from './hooks/useSlotCalendar';
 export * from './types';
+export * from './utils/constants';
 export * from './utils/dateUtils';
 
 // Export styles

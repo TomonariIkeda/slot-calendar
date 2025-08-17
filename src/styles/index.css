@@ -1,219 +1,396 @@
-.reservation-calendar {
+/* Slot Calendar Styles - YoyakuDX Compatible */
+
+.slot-calendar {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
   border-radius: 8px;
   padding: 16px;
   max-width: 100%;
+  box-sizing: border-box;
 }
 
-.reservation-calendar--disabled {
+.slot-calendar--disabled {
   opacity: 0.6;
   pointer-events: none;
 }
 
+.slot-calendar--loading {
+  position: relative;
+}
+
 /* Header */
-.reservation-calendar__header {
+.slot-calendar__header {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.slot-calendar__navigation {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e2e8f0;
 }
 
-.reservation-calendar__navigation {
+.slot-calendar__nav-button {
   display: flex;
   align-items: center;
-  gap: 12px;
-}
-
-.reservation-calendar__nav-button {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  gap: 4px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
   padding: 8px 12px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
+  color: #333;
   transition: all 0.2s ease;
 }
 
-.reservation-calendar__nav-button:hover:not(:disabled) {
-  background: #e2e8f0;
+.slot-calendar__nav-button:hover:not(:disabled) {
+  background: #e0e0e0;
 }
 
-.reservation-calendar__nav-button:disabled {
+.slot-calendar__nav-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.reservation-calendar__current-period {
-  margin: 0;
+.slot-calendar__nav-icon {
   font-size: 18px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+/* Progress Bar */
+.slot-calendar__progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: #f0f0f0;
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+  background-size: 200% 100%;
+  animation: progressAnimation 1.5s ease-in-out infinite;
+}
+
+@keyframes progressAnimation {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Error Message */
+.slot-calendar__error {
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  border: 1px solid #ffcdd2;
+}
+
+/* Table Container */
+.slot-calendar__table-wrapper {
+  overflow-x: auto;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+/* Calendar Table */
+.slot-calendar__table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  font-size: 14px;
+  min-width: 600px;
+}
+
+/* Month Header */
+.cal-month th {
+  background: #f8f9fa;
+  color: #333;
   font-weight: 600;
-  color: #1a202c;
-  min-width: 200px;
+  padding: 12px 8px;
+  border-bottom: 2px solid #dee2e6;
   text-align: center;
 }
 
-
-/* Grid Layout */
-.reservation-calendar__grid {
-  display: grid;
-  gap: 16px;
+#cal-month-th {
+  font-size: 16px;
+  letter-spacing: 0.5px;
 }
 
-.reservation-calendar--week-view .reservation-calendar__grid {
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+/* Day Headers */
+.cal-day-th {
+  background: #f1f3f4;
+  padding: 8px 4px;
+  text-align: center;
+  border-bottom: 1px solid #dee2e6;
+  border-right: 1px solid #dee2e6;
+  min-width: 80px;
 }
 
-/* Day Component */
-.reservation-calendar__day {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  padding: 12px;
-  min-height: 200px;
+.cal-day-th:last-child {
+  border-right: none;
 }
 
-.reservation-calendar__day--today {
-  border-color: #3182ce;
-  background: #ebf8ff;
-}
-
-.reservation-calendar__day--selected {
-  border-color: #805ad5;
-  background: #faf5ff;
-}
-
-.reservation-calendar__day--disabled {
-  opacity: 0.5;
-}
-
-.reservation-calendar__day-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.reservation-calendar__day-date {
-  margin: 0;
+.cal-date {
+  display: block;
   font-size: 16px;
   font-weight: 600;
-  color: #1a202c;
+  line-height: 1.2;
 }
 
-.reservation-calendar__day-today-indicator {
-  background: #3182ce;
-  color: white;
+.cal-weekday {
+  display: block;
   font-size: 12px;
-  font-weight: 500;
-  padding: 2px 6px;
-  border-radius: 12px;
+  margin-top: 2px;
+  opacity: 0.8;
 }
 
-/* Slots */
-.reservation-calendar__day-slots {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+/* Day Color Classes */
+.cal-day-th.red .cal-date,
+.cal-day-th.red .cal-weekday {
+  color: #d32f2f;
 }
 
-.reservation-calendar__no-slots {
+.cal-day-th.blue .cal-date,
+.cal-day-th.blue .cal-weekday {
+  color: #1976d2;
+}
+
+/* Time Slots */
+.cal-time-slot {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cal-time-slot:hover {
+  background: #fafafa;
+}
+
+.cal-time {
+  background: #f8f9fa;
+  padding: 8px 12px;
   text-align: center;
-  color: #718096;
-  font-style: italic;
-  padding: 20px;
+  font-weight: 500;
+  color: #666;
+  border-right: 1px solid #dee2e6;
+  min-width: 80px;
+  font-size: 13px;
 }
 
-/* Time Slot Component */
-.reservation-calendar__time-slot {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 10px 12px;
+/* Slot Cells */
+.cal-time-slot td {
+  padding: 8px;
+  text-align: center;
+  border-right: 1px solid #f0f0f0;
   cursor: pointer;
   transition: all 0.2s ease;
-  text-align: left;
-  width: 100%;
-  font-size: 14px;
+  position: relative;
+  min-height: 40px;
+  font-weight: 600;
+  font-size: 16px;
 }
 
-.reservation-calendar__time-slot:hover:not(:disabled) {
-  border-color: #3182ce;
-  background: #f7fafc;
+.cal-time-slot td:last-child {
+  border-right: none;
 }
 
-.reservation-calendar__time-slot--selected {
-  background: #3182ce;
-  border-color: #3182ce;
-  color: white;
+/* Slot Status Styles */
+.cal-time-slot td.available {
+  background: #fff;
+  color: #d32f2f;
+  cursor: pointer;
 }
 
-.reservation-calendar__time-slot--unavailable {
-  background: #f7fafc;
-  border-color: #e2e8f0;
-  color: #718096;
+.cal-time-slot td.available:hover {
+  background: #ffebee;
+  transform: scale(1.05);
+}
+
+.cal-time-slot td.reserved {
+  background: #f5f5f5;
+  color: #757575;
   cursor: not-allowed;
 }
 
-.reservation-calendar__time-slot--reserved {
-  background: #fed7d7;
-  border-color: #feb2b2;
-  color: #c53030;
+.cal-time-slot td.off {
+  background: #fafafa;
+  color: #bdbdbd;
   cursor: not-allowed;
 }
 
-.reservation-calendar__time-slot--disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+/* Slot Symbols */
+.cal-time-slot td.available::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(211, 47, 47, 0.1);
+  z-index: 0;
 }
 
-.reservation-calendar__time-slot:disabled {
-  cursor: not-allowed;
+.cal-time-slot td.available {
+  position: relative;
+  z-index: 1;
 }
 
-.reservation-calendar__time-slot-time {
-  display: block;
-  font-weight: 500;
-}
-
-.reservation-calendar__time-slot-status {
-  display: block;
-  font-size: 12px;
-  opacity: 0.8;
-  margin-top: 2px;
-}
-
-/* Responsive Design */
+/* Mobile Responsive */
 @media (max-width: 768px) {
-  .reservation-calendar {
-    padding: 12px;
+  .slot-calendar {
+    padding: 8px;
   }
   
-  .reservation-calendar__header {
-    flex-direction: column;
-    gap: 12px;
-    align-items: stretch;
+  .slot-calendar__table-wrapper {
+    margin: 0 -8px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    overflow-x: visible; /* Remove horizontal scroll */
   }
   
-  .reservation-calendar__navigation {
-    justify-content: center;
+  .slot-calendar__table {
+    min-width: unset; /* Remove fixed min-width */
+    width: 100%;
+    table-layout: fixed; /* Fixed layout for equal column widths */
   }
   
-  .reservation-calendar__current-period {
-    font-size: 16px;
-    min-width: auto;
+  .cal-day-th {
+    min-width: unset;
+    width: calc((100% - 60px) / 7); /* Divide remaining width equally */
+    padding: 4px 1px;
+    font-size: 11px;
   }
   
-  .reservation-calendar--week-view .reservation-calendar__grid {
-    grid-template-columns: 1fr;
+  .cal-date {
+    font-size: 12px;
   }
   
-  .reservation-calendar__day {
-    min-height: auto;
+  .cal-weekday {
+    font-size: 9px;
   }
+  
+  .cal-time {
+    min-width: unset;
+    width: 60px; /* Fixed width for time column */
+    padding: 4px 2px;
+    font-size: 10px;
+  }
+  
+  .cal-time-slot td {
+    padding: 4px 1px;
+    min-height: 30px;
+    font-size: 12px;
+  }
+  
+  .slot-calendar__nav-button {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  
+  .slot-calendar__nav-icon {
+    font-size: 14px;
+  }
+}
+
+/* Extra small mobile (320px and below) */
+@media (max-width: 320px) {
+  .slot-calendar {
+    padding: 4px;
+  }
+  
+  .cal-day-th {
+    padding: 2px 1px;
+  }
+  
+  .cal-date {
+    font-size: 11px;
+  }
+  
+  .cal-weekday {
+    font-size: 8px;
+  }
+  
+  .cal-time {
+    width: 50px;
+    font-size: 9px;
+    padding: 2px 1px;
+  }
+  
+  .cal-time-slot td {
+    padding: 2px 1px;
+    min-height: 25px;
+    font-size: 11px;
+  }
+  
+  .slot-calendar__nav-button {
+    padding: 4px 6px;
+    font-size: 11px;
+  }
+}
+
+/* Loading State */
+.slot-calendar--loading .slot-calendar__table {
+  pointer-events: none;
+}
+
+/* Skeleton loading animation */
+.cal-time-slot td.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeletonLoading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeletonLoading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Focus States for Accessibility */
+.slot-calendar__nav-button:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+.cal-time-slot td.available:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+/* Animation for slot selection */
+.cal-time-slot td.available:active {
+  transform: scale(0.95);
+  background: #ffcdd2;
+}
+
+/* Custom scrollbar for webkit browsers */
+.slot-calendar__table-wrapper::-webkit-scrollbar {
+  height: 8px;
+}
+
+.slot-calendar__table-wrapper::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.slot-calendar__table-wrapper::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.slot-calendar__table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
 }

@@ -1,0 +1,1 @@
+{"version":3,"file":"useSlotCalendar.d.ts","sourceRoot":"","sources":["../../src/hooks/useSlotCalendar.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,YAAY,EAAqB,MAAM,UAAU,CAAC;AAG3D,eAAO,MAAM,eAAe,GAC1B,cAAa,IAAiB,EAC9B,kBAAkB,CAAC,SAAS,EAAE,OAAO,KAAK,IAAI;6BA6B/B,MAAM,EAAE,WACZ,MAAM,GAAG,SAAS,mBACV,OAAO,UAChB,MAAM,kBACE,MAAM;;;2BAmDC,IAAI;;;;;CAE9B,CAAC"}
